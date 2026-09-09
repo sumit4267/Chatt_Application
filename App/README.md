@@ -1,93 +1,209 @@
-# Thread — Real-time 1-on-1 Chat App
+# Thread — Real-Time 1-on-1 Chat Application
 
-A full-stack chat application built with **React (Vite)**, **Express**, **MongoDB**, and **Socket.IO**, using **JWT stored in an httpOnly cookie** for authentication.
+Thread is a full-stack real-time chat application that allows users to securely communicate with each other through one-on-one messaging.
 
-> Note: this was built from scratch to a standard MERN + Socket.IO architecture. I can't watch or copy a specific YouTube video, so this isn't a frame-by-frame clone of any tutorial — it's a complete, working implementation of the same kind of app (auth, 1-on-1 real-time messaging).
+The application is built using the **MERN stack** with **Socket.IO** for real-time communication. It includes user authentication, protected routes, online user status, typing indicators, and persistent chat history.
 
-## Features
+## 🚀 Features
 
-- Register / login / logout with hashed passwords (bcrypt)
-- Sessions via JWT in an httpOnly, secure cookie (not readable by JS — protects against XSS token theft)
-- Route protection: unauthenticated users are redirected to `/login`, all API routes are guarded by middleware
-- Real-time 1-on-1 messaging with Socket.IO
-- Online/offline presence indicators
-- "Is typing…" indicator
-- Message history persisted in MongoDB, loaded per conversation
-- Optimistic message sending (appears instantly, reconciled with the server response)
+* User registration and login
+* Secure password hashing using **bcrypt**
+* JWT-based authentication
+* Authentication using **httpOnly cookies**
+* Protected frontend and backend routes
+* Real-time one-on-one messaging using **Socket.IO**
+* Online and offline user status
+* Typing indicators
+* Persistent message history using **MongoDB**
+* Automatic loading of previous conversations
+* Optimistic message updates for a faster user experience
+* User logout functionality
 
-## Project structure
+## 🛠️ Technologies Used
 
-```
+### Frontend
+
+* React.js
+* Vite
+* JavaScript
+* HTML
+* Tailwind CSS
+
+### Backend
+
+* Node.js
+* Express.js
+* MongoDB
+* Mongoose
+* Socket.IO
+* JSON Web Token (JWT)
+* bcrypt
+
+## 📁 Project Structure
+
+```text
 chat-app/
-├─ server/            # Express API + Socket.IO
-│  ├─ config/db.js
-│  ├─ models/         # User, Message (Mongoose)
-│  ├─ middleware/authMiddleware.js
-│  ├─ controllers/    # authController, userController, messageController
-│  ├─ routes/
-│  ├─ utils/generateToken.js
-│  └─ server.js
-└─ client/            # React (Vite)
-   └─ src/
-      ├─ api/axios.js
-      ├─ context/     # AuthContext, SocketContext
-      ├─ components/  # Sidebar, ChatWindow, MessageBubble, MessageInput, ProtectedRoute
-      └─ pages/       # Login, Register, ChatPage
+│
+├── server/
+│   ├── config/
+│   │   └── db.js
+│   │
+│   ├── controllers/
+│   │   ├── authController.js
+│   │   ├── userController.js
+│   │   └── messageController.js
+│   │
+│   ├── middleware/
+│   │   └── authMiddleware.js
+│   │
+│   ├── models/
+│   │   ├── User.js
+│   │   └── Message.js
+│   │
+│   ├── routes/
+│   ├── utils/
+│   │   └── generateToken.js
+│   └── server.js
+│
+└── client/
+    └── src/
+        ├── api/
+        ├── context/
+        ├── components/
+        └── pages/
 ```
 
-## Setup
+## ⚙️ Installation and Setup
 
-### 1. Backend
+### Backend Setup
+
+Navigate to the server directory:
 
 ```bash
 cd server
-npm install
-cp .env.example .env
 ```
 
-Edit `.env`:
+Install the required dependencies:
+
+```bash
+npm install
 ```
+
+Create a `.env` file and add the required environment variables:
+
+```env
 PORT=5000
-MONGO_URI=mongodb://127.0.0.1:27017/chat-app   # or your MongoDB Atlas URI
-JWT_SECRET=some_long_random_string
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_secret_key
 JWT_EXPIRES_IN=7d
 CLIENT_URL=http://localhost:5173
 NODE_ENV=development
 ```
 
-Run MongoDB locally, or use a free [MongoDB Atlas](https://www.mongodb.com/atlas) cluster and paste its connection string into `MONGO_URI`.
+Start the backend server:
 
 ```bash
 npm run dev
 ```
 
-Server starts on `http://localhost:5000`.
+The server will run on:
 
-### 2. Frontend
+```text
+http://localhost:5000
+```
+
+### Frontend Setup
+
+Navigate to the client directory:
 
 ```bash
 cd client
+```
+
+Install dependencies:
+
+```bash
 npm install
-cp .env.example .env   # VITE_SOCKET_URL=http://localhost:5000
+```
+
+Create a `.env` file if required:
+
+```env
+VITE_SOCKET_URL=http://localhost:5000
+```
+
+Start the frontend application:
+
+```bash
 npm run dev
 ```
 
-App runs on `http://localhost:5173`. Vite proxies `/api` requests to the backend, and cookies are sent with `withCredentials: true`.
+The application will run on:
 
-### 3. Try it out
+```text
+http://localhost:5173
+```
 
-Open two browser windows (or one normal + one incognito), register two different accounts, and message between them — messages arrive instantly via Socket.IO.
+## 🔐 Authentication Flow
 
-## How the auth works
+The application uses JWT-based authentication with httpOnly cookies.
 
-1. `POST /api/auth/register` or `/login` hashes/checks the password and signs a JWT containing the user's ID.
-2. The JWT is set as an `httpOnly` cookie — client-side JavaScript can never read it, which blocks token theft via XSS.
-3. Every protected route runs through `middleware/authMiddleware.js`, which verifies the cookie and attaches `req.user`.
-4. The Socket.IO server re-verifies the same cookie during the socket handshake (`io.use(...)` in `server.js`), so real-time events are also authenticated.
-5. On the client, `AuthContext` calls `GET /api/auth/me` on load to restore the session, and `ProtectedRoute` redirects anyone without a valid session to `/login`.
+1. A user registers or logs into the application.
+2. The password is securely hashed or verified using bcrypt.
+3. The server generates a JWT containing the authenticated user's information.
+4. The JWT is stored in an httpOnly cookie.
+5. Protected API routes verify the JWT before allowing access.
+6. The authenticated user information is attached to the request.
+7. Socket connections are authenticated before users can exchange real-time messages.
 
-## Deploying
+Using httpOnly cookies prevents client-side JavaScript from directly accessing the authentication token.
 
-- Set `NODE_ENV=production` on the server so cookies get `secure: true` and `sameSite: "none"` (required for cross-site cookies over HTTPS).
-- Point `CLIENT_URL` (server) and `VITE_SOCKET_URL` (client) at your deployed URLs.
-- Use a managed MongoDB (Atlas) rather than a local instance.
+## 💬 Real-Time Messaging
+
+Socket.IO is used to establish real-time communication between users.
+
+When a user sends a message:
+
+1. The message is sent to the server.
+2. The message is stored in MongoDB.
+3. The server identifies the receiving user.
+4. If the receiver is online, the message is delivered instantly through Socket.IO.
+5. Previous messages can be retrieved from MongoDB when opening a conversation.
+
+The application also manages user connection status and typing events to improve the chat experience.
+
+## 🗄️ Database
+
+MongoDB is used to store:
+
+* User information
+* Hashed passwords
+* Messages
+* Sender and receiver details
+* Message timestamps
+
+Mongoose is used to define schemas and interact with the MongoDB database.
+
+## 🌐 Deployment
+
+For production deployment:
+
+* Use MongoDB Atlas or another managed MongoDB service.
+* Configure production environment variables.
+* Update `CLIENT_URL` with the deployed frontend URL.
+* Update `VITE_SOCKET_URL` with the deployed backend URL.
+* Use HTTPS when working with secure authentication cookies.
+
+## 📌 What I Learned
+
+While building this project, I gained practical experience with:
+
+* Building REST APIs with Express.js
+* MongoDB and Mongoose database operations
+* JWT authentication and protected routes
+* Password hashing using bcrypt
+* Cookie-based authentication
+* Real-time communication using Socket.IO
+* React Context for managing application state
+* Connecting a React frontend with a Node.js backend
+* Managing user authentication and real-time events
