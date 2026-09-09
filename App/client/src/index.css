@@ -1,0 +1,72 @@
+:root {
+  --ink: #17212b;
+  --ink-soft: #212d3a;
+  --ink-line: #2c3947;
+  --paper: #f7f4ef;
+  --paper-line: #e6e0d4;
+  --teal: #3f7268;
+  --teal-deep: #2c5049;
+  --coral: #c97b4b;
+  --text-dark: #1c2126;
+  --text-muted: #8a94a0;
+  --text-on-ink: #e7ebee;
+  --text-on-ink-muted: #92a0ab;
+  --danger: #b3564a;
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--text-dark);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+textarea {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--paper-line);
+  border-radius: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
